@@ -1,0 +1,14 @@
+# The nginx container
+nginx:
+  hostname: nginx.example.test
+  build: .
+  ports:
+    - "8080:8080"
+  environment:
+    - http_proxy
+    - https_proxy
+    - ftp_proxy
+    - no_proxy
+    - SERVICE_NAME=TEST
+    - TEST_SERVICE_HOST=google.com
+    - TEST_SERVICE_PORT=80
