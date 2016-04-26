@@ -2,18 +2,26 @@ FROM centos:7
 MAINTAINER The DevOpsLab Project <DevOpsLab@telekom.de>
 LABEL name="DevOpsLab Nginx Reverse Proxy Base Image"
 
-ENV NGINX_DOL_PATH /opt/dol/nginx
+ENV DOL_BASE_DIR /opt/dol
+ENV DOL_TMPL_DIR ${DOL_BASE_DIR}/nginx
 
+# First of all we need the Nginx package.
 RUN yum -y install epel-release \
     && yum -y install nginx \
     && yum clean all
 
-RUN mkdir -p ${NGINX_DOL_PATH}/config
-
-COPY entrypoint.sh /entrypoint.sh
+# Prepare Nginx proxy configuration.
+RUN mkdir -p ${DOL_TMPL_DIR}
+COPY config/nginx.vh.proxy.conf.in ${DOL_TMPL_DIR}/
 COPY config/nginx.conf /etc/nginx/nginx.conf
-COPY config/nginx.vh.proxy.conf.in ${NGINX_DOL_PATH}/config
 
+# Relax permissions for nginx directories
+RUN for dir in /etc/nginx/conf.d /var/lib/nginx /var/log/nginx /var/run ; do \
+    chmod -cR g+rwx ${dir} && chgrp -cR root ${dir} ; \
+    done
+
+# And not the docker entrypoint script.
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod a+x /entrypoint.sh
 
 EXPOSE 8080
