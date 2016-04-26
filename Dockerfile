@@ -11,10 +11,15 @@ RUN yum -y install epel-release \
     && yum clean all
 
 # Prepare Nginx proxy configuration.
-RUN mkdir -p ${DOL_TMPL_DIR} \
-    && chmod g+rwx /etc/nginx/conf.d
+RUN mkdir -p ${DOL_TMPL_DIR}
 COPY config/nginx.vh.proxy.conf.in ${DOL_TMPL_DIR}/
 COPY config/nginx.conf /etc/nginx/nginx.conf
+
+# Relax permissions for nginx directories
+RUN chmod g+rwx /var/lib/nginx \
+    && chmod g+rwx /etc/nginx/conf.d \
+    && chmod g+rwx /var/log/nginx \
+    && chgrp -c root /var/log/nginx
 
 # And not the docker entrypoint script.
 COPY entrypoint.sh /entrypoint.sh

@@ -24,4 +24,6 @@ upstream theservice { \\
 } \\
 " > /etc/nginx/conf.d/proxy.conf
 
+ls -lRa /var/log
+
 nginx -g "daemon off;"
