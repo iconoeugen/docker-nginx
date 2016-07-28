@@ -95,5 +95,5 @@ if [[ $# -ge 1 ]]; then
     exec $@
 else
     echo "Starting Nginx proxy server."
-    nginx -g "daemon off;"
+    exec nginx -g "daemon off;"
 fi
