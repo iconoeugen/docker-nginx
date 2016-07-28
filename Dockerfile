@@ -20,10 +20,6 @@ RUN for dir in /etc/nginx/conf.d /etc/nginx/certs /var/lib/nginx /var/run ; do \
     mkdir -p ${dir} && chmod -cR g+rwx ${dir} && chgrp -cR root ${dir} ; \
     done
 
-# forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
-
 # And not the docker entrypoint script.
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod a+x /entrypoint.sh
