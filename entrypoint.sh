@@ -90,6 +90,10 @@ if [[ ${PROXY_HTTPS_ENABLED} -eq 1 ]] ; then
     fi
 fi
 
+# Fix for logging on Docker 1.8 (See Docker issue #6880)
+cat <> /var/log/nginx/access.log &
+cat <> /var/log/nginx/error.log 1>&2 &
+
 if [[ $# -ge 1 ]]; then
     echo "$@"
     exec $@
