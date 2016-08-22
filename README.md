@@ -84,21 +84,29 @@ The service name is uppercased and *-* is replaced with *_* when generating the 
 
 ### Nginx server configuration
 
-- **PROXY_SENDFILE**: Enables or disables the use of sendfile. (Defaults: **on**)
-- **PROXY_TCP_NOPUSH**: Enables or disables the use of the TCP_NOPUSH socket option on FreeBSD or the TCP_CORK socket option on Linux. (Defaults: **off**)
-- **PROXY_KEEP_ALIVE_TIMEOUT**: The first parameter sets a timeout during which a keep-alive client connection will stay open on the server side. The zero value disables keep-alive client connections. (Defaults: **65**)
+- **NGINX_SEND_TIMEOUT**: Sets a timeout for transmitting a response to the client. (Defaults: **60s**)
+- **NGINX_SENDFILE**: Enables or disables the use of sendfile. Nginx option enables to use of sendfile(2) for everything related to… sending file. (Defaults: **off**)
+- **NGINX_TCP_NODELAY**: Activating TCP_NODELAY forces a socket to send the data in its buffer, whatever the packet size. (Defaults: **off**)
+- **NGINX_TCP_NOPUSH**: Enables or disables the use of the TCP_NOPUSH. tcp_nopush works as an opposite to tcp_nodelay. Instead of optimizing delays, it optimizes the amount of data sent at once. (Defaults: **off**)
+- **NGINX_KEEP_ALIVE_TIMEOUT**: The first parameter sets a timeout during which a keep-alive client connection will stay open on the server side. The zero value disables keep-alive client connections. (Defaults: **75s**)
+- **NGINX_CLIENT_HEADER_TIMEOUT**: Defines a timeout for reading client request header. (Defaults: **8s**)
+- **NGINX_CLIEHT_HEADER_BUFFER_SIZE**:  Sets buffer size for reading client request header. (Defaults: **8k**)
+- **NGINX_LARGE_CLIENT_HEADER_BUFFERS_NUMBER**: Sets the maximum number and size of buffers used for reading large client request header. (Defaults: **4**)
+- **NGINX_LARGE_CLIENT_HEADER_BUFFERS_SIZE**: Sets the maximum size of buffers used for reading large client request header. (Defaults: **8k**)
+- **NGINX_CLIENT_BODY_TIMEOUT**: Defines a timeout for reading client request body. The timeout is set only for a period between two successive read operations, not for the transmission of the whole request body. (Defaults: **8s**)
+- **NGINX_CLIENT_BODY_BUFFER_SIZE**: Sets buffer size for reading client request body. In case the request body is larger than the buffer, the whole body or only its part is written to a temporary file. (Defaults: **1k**)
 
 ### Nginx as HTTP proxy server
 
-- **PROXY_HTTP_ENABLED**: Enable Nginx as HTTP proxy server to listen on port *8080* if value is `1`. (Defaults: **1**)
+- **NGINX_HTTP_ENABLED**: Enable Nginx as HTTP proxy server to listen on port *8080* if value is `1`. (Defaults: **1**)
 
 ### Nginx as HTTPS proxy server
 
-- **PROXY_HTTPS_ENABLED**: Enable Nginx as HTTPS proxy server to listen on port *8443* if value is `1`. (Defaults: **0**)
-- **PROXY_SSL_DH_SIZE**: Specifies the bit size of DH parameters. (Defaults: **128**)
-- **PROXY_SSL_DH_PATH**: Path to DH parameters file. (Defaults: **/etc/nginx/certs/dh.pem**)
-- **PROXY_SSL_CERT_PATH**: Specifies a file with the certificate in the PEM format. If certificate file is not found then a new one is generated. (Defaults: **/etc/nginx/certs/cert.pem**)
-- **PROXY_SSL_KEY_PATH**: Specifies a file with the secret key in the PEM format. If secret key file is not found then a new one is generated. (Defaults: **/etc/nginx/certs/cert.key**)
+- **NGINX_HTTPS_ENABLED**: Enable Nginx as HTTPS proxy server to listen on port *8443* if value is `1`. (Defaults: **0**)
+- **NGINX_SSL_DH_SIZE**: Specifies the bit size of DH parameters. (Defaults: **128**)
+- **NGINX_SSL_DH_PATH**: Path to DH parameters file. (Defaults: **/etc/nginx/certs/dh.pem**)
+- **NGINX_SSL_CERT_PATH**: Specifies a file with the certificate in the PEM format. If certificate file is not found then a new one is generated. (Defaults: **/etc/nginx/certs/cert.pem**)
+- **NGINX_SSL_KEY_PATH**: Specifies a file with the secret key in the PEM format. If secret key file is not found then a new one is generated. (Defaults: **/etc/nginx/certs/cert.key**)
 
 ### Other configurations
 
@@ -131,9 +139,9 @@ FROM iconoeugen/docker-nginx
 
 COPY /tmp/dh.pem /tmp/cert.key /tmp/cert.pem /
 
-ENV PROXY_SSL_DH_PATH /dh.pem
-ENV PROXY_SSL_CERT_PATH /cert.pem
-ENV PROXY_SSL_KEY_PATH /cert.key
+ENV NGINX_SSL_DH_PATH /dh.pem
+ENV NGINX_SSL_CERT_PATH /cert.pem
+ENV NGINX_SSL_KEY_PATH /cert.key
 ```
 
 ### Docker at runtime
@@ -150,9 +158,9 @@ docker run \
   --env SERVICE_NAME="test" \
   --env TEST_SERVICE_HOST="google.com" \
   --env TEST_SERVICE_PORT="80" \
-  --env PROXY_SSL_DH_PATH="/tmp/dh.pem" \
-  --env PROXY_SSL_CERT_PATH="/tmp/cert.pem" \
-  --env PROXY_SSL_KEY_PATH="/tmp/cert.key" \
+  --env NGINX_SSL_DH_PATH="/tmp/dh.pem" \
+  --env NGINX_SSL_CERT_PATH="/tmp/cert.pem" \
+  --env NGINX_SSL_KEY_PATH="/tmp/cert.key" \
   --name dockernginx_test \
   --detach \
   dockernginx_nginx
@@ -173,7 +181,7 @@ You can use the following command:
 openssl dhparam -out /tmp/dh.pem 256
 ```
 
-### Create a self-signed ssl cert. 
+### Create a self-signed ssl cert.
 
 Please note, that the Common Name (CN) is important and should be the FQDN to the secured server (in this example is 'localhost'):
 

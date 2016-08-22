@@ -2,7 +2,38 @@ upstream the-service {
   server ${SERVICE_ADDR};
 }
 
-sendfile           ${PROXY_SENDFILE};
-tcp_nopush         ${PROXY_TCP_NOPUSH};
+# Sets a timeout for transmitting a response to the client.
+send_timeout ${NGINX_SEND_TIMEOUT};
 
-keepalive_timeout  ${PROXY_KEEP_ALIVE_TIMEOUT};
+# Nginx option enables to use of sendfile(2) for everything related to… sending file
+sendfile           ${NGINX_SENDFILE};
+
+# Activating TCP_NODELAY forces a socket to send the data in its buffer, whatever the packet size.
+tcp_nodelay        ${NGINX_TCP_NODELAY};
+
+# tcp_nopush works as an opposite to tcp_nodelay. Instead of optimizing delays, it optimizes the amount of data sent at once.
+tcp_nopush         ${NGINX_TCP_NOPUSH};
+
+# Sets a timeout during which a keep-alive client connection will stay open on the server side.
+# The zero value disables keep-alive client connections.
+keepalive_timeout  ${NGINX_KEEP_ALIVE_TIMEOUT};
+
+# Defines a timeout for reading client request header.
+client_header_timeout ${NGINX_CLIENT_HEADER_TIMEOUT};
+
+# Sets buffer size for reading client request header.
+client_header_buffer_size ${NGINX_CLIEHT_HEADER_BUFFER_SIZE};
+
+# Sets the maximum number and size of buffers used for reading large client request header.
+large_client_header_buffers ${NGINX_LARGE_CLIENT_HEADER_BUFFERS_NUMBER} ${NGINX_LARGE_CLIENT_HEADER_BUFFERS_SIZE};
+
+# Defines a timeout for reading client request body.
+# The timeout is set only for a period between two successive read operations,
+# not for the transmission of the whole request body.
+client_body_timeout ${NGINX_CLIENT_BODY_TIMEOUT};
+
+# Sets buffer size for reading client request body.
+# In case the request body is larger than the buffer,
+# the whole body or only its part is written to a temporary file.
+client_body_buffer_size ${NGINX_CLIENT_BODY_BUFFER_SIZE};
+
