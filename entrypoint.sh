@@ -6,22 +6,30 @@ set -o errexit
 [[ ${DEBUG} -eq 1 ]] && set -x
 
 # Nginx server configuration
-: ${PROXY_SENDFILE:=on}
-: ${PROXY_TCP_NOPUSH:=off}
-: ${PROXY_KEEP_ALIVE_TIMEOUT:=65}
+: ${NGINX_SEND_TIMEOUT:=60s}
+: ${NGINX_SENDFILE:=off}
+: ${NGINX_TCP_NODELAY:=off}
+: ${NGINX_TCP_NOPUSH:=off}
+: ${NGINX_KEEP_ALIVE_TIMEOUT:=75s}
+: ${NGINX_CLIENT_HEADER_TIMEOUT:=8s}
+: ${NGINX_CLIEHT_HEADER_BUFFER_SIZE:=1k}
+: ${NGINX_LARGE_CLIENT_HEADER_BUFFERS_NUMBER:=4}
+: ${NGINX_LARGE_CLIENT_HEADER_BUFFERS_SIZE:=8k}
+: ${NGINX_CLIENT_BODY_TIMEOUT:=8s}
+: ${NGINX_CLIENT_BODY_BUFFER_SIZE:=1k}
 
 # Enable HTTP proxy server
-: ${PROXY_HTTP_ENABLED:=1}
+: ${NGINX_HTTP_ENABLED:=1}
 
 # Enable HTTPS proxy server
-: ${PROXY_HTTPS_ENABLED:=0}
-: ${PROXY_SSL_DH_SIZE:=256}
-: ${PROXY_SSL_DH_PATH:=/etc/nginx/certs/dh.pem}
-: ${PROXY_SSL_KEY_PATH:=/etc/nginx/certs/cert.key}
-: ${PROXY_SSL_CERT_PATH:=/etc/nginx/certs/cert.pem}
+: ${NGINX_HTTPS_ENABLED:=0}
+: ${NGINX_SSL_DH_SIZE:=256}
+: ${NGINX_SSL_DH_PATH:=/etc/nginx/certs/dh.pem}
+: ${NGINX_SSL_KEY_PATH:=/etc/nginx/certs/cert.key}
+: ${NGINX_SSL_CERT_PATH:=/etc/nginx/certs/cert.pem}
 
 # Service name is mandatory
-: ${SERVICE_NAME:?"Not defined"}
+: ${SERVICE_NAME:?Not defined}
 SERVICE_NAME=${SERVICE_NAME^^}
 SERVICE_NAME=${SERVICE_NAME//-/_}
 
@@ -31,7 +39,7 @@ SERVICE_NAME=${SERVICE_NAME//-/_}
 # SERVICE_HOST is manadatory
 SERVICE_HOST=${SERVICE_NAME}_SERVICE_HOST
 SERVICE_HOST=${!SERVICE_HOST}
-: ${SERVICE_HOST?"Not defined"}
+: ${SERVICE_HOST:?Not defined ${SERVICE_NAME}_SERVICE_HOST}
 
 # SERVICE_PORT is optional
 SERVICE_PORT=${SERVICE_NAME}_SERVICE_PORT
@@ -42,8 +50,8 @@ SERVICE_ADDR="${SERVICE_HOST}${SERVICE_PORT:+:${SERVICE_PORT}}"
 
 echo "Proxy service URL: ${SERVICE_PROTO}://${SERVICE_ADDR}"
 
-[[ ${PROXY_HTTP_ENABLED} -ne 1 && ${PROXY_HTTPS_ENABLED} -ne 1 ]] \
-    && >&2 echo "At least one of 'PROXY_HTTP_ENABLED' or 'PROXY_HTTPS_ENABLED' must be '1'!" \
+[[ ${NGINX_HTTP_ENABLED} -ne 1 && ${NGINX_HTTPS_ENABLED} -ne 1 ]] \
+    && >&2 echo "At least one of 'NGINX_HTTP_ENABLED' or 'NGINX_HTTPS_ENABLED' must be '1'!" \
     && exit 1
 
 # Replace all set environment variables from in the current shell session.
@@ -63,29 +71,29 @@ echo "Configure Nginx server."
 substenv ${DOL_TMPL_DIR}/nginx.vh.proxy.conf.in /etc/nginx/conf.d/proxy.conf
 
 # Configure HTTP server
-if [[ ${PROXY_HTTP_ENABLED} -eq 1 ]] ; then
+if [[ ${NGINX_HTTP_ENABLED} -eq 1 ]] ; then
     echo "Enable Nginx HTTP proxy server."
     substenv ${DOL_TMPL_DIR}/nginx.vh.proxy-http.conf.in /etc/nginx/conf.d/proxy-http.conf
 fi
 
 # Configure HTTPS server
-if [[ ${PROXY_HTTPS_ENABLED} -eq 1 ]] ; then
+if [[ ${NGINX_HTTPS_ENABLED} -eq 1 ]] ; then
     echo "Enable Nginx HTTPS proxy server."
     substenv ${DOL_TMPL_DIR}/nginx.vh.proxy-https.conf.in /etc/nginx/conf.d/proxy-https.conf
 
-    if [ ! -e "${PROXY_SSL_DH_PATH}" ]
+    if [ ! -e "${NGINX_SSL_DH_PATH}" ]
     then
-        echo "Generating DH(${PROXY_SSL_DH_SIZE}): ${PROXY_SSL_DH_PATH}."
-        openssl dhparam -out "${PROXY_SSL_DH_PATH}" "${PROXY_SSL_DH_SIZE}"
+        echo "Generating DH(${NGINX_SSL_DH_SIZE}): ${NGINX_SSL_DH_PATH}."
+        openssl dhparam -out "${NGINX_SSL_DH_PATH}" "${NGINX_SSL_DH_SIZE}"
     fi
 
-    if [ ! -e "${PROXY_SSL_KEY_PATH}" ] || [ ! -e "${PROXY_SSL_CERT_PATH}" ]
+    if [ ! -e "${NGINX_SSL_KEY_PATH}" ] || [ ! -e "${NGINX_SSL_CERT_PATH}" ]
     then
         echo "Generating self signed certificate."
         openssl req -x509 -newkey rsa:4086 \
             -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
-            -keyout "${PROXY_SSL_KEY_PATH}" \
-            -out "${PROXY_SSL_CERT_PATH}" \
+            -keyout "${NGINX_SSL_KEY_PATH}" \
+            -out "${NGINX_SSL_CERT_PATH}" \
             -days 3650 -nodes -sha256
     fi
 fi

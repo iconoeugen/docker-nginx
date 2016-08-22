@@ -5,7 +5,6 @@ nginx:
   ports:
     - "8080:8080"
     - "8443:8443"
-  #command: /usr/bin/bash
   environment:
     - http_proxy
     - https_proxy
@@ -13,8 +12,8 @@ nginx:
     - no_proxy
     - SERVICE_NAME=TEST
     - SERVICE_PROTO=https
-    - PROXY_HTTP_ENABLED=1
-    - PROXY_HTTPS_ENABLED=1
+    - NGINX_HTTP_ENABLED=1
+    - NGINX_HTTPS_ENABLED=1
     - TEST_SERVICE_HOST=www.readthedocs.com
     - TEST_SERVICE_PORT=443
     - DEBUG=1
