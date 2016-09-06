@@ -3,7 +3,7 @@ server {
   ssl on;
 
   # enable dh
-  ssl_dhparam ${PROXY_SSL_DH_PATH};
+  ssl_dhparam ${NGINX_SSL_DH_PATH};
 
   # protocols
   ssl_protocols TLSv1 TLSv1.1 TLSv1.2; # disable poodle
@@ -12,8 +12,8 @@ server {
   ssl_prefer_server_ciphers on;
   ssl_ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS;
 
-  ssl_certificate ${PROXY_SSL_CERT_PATH};
-  ssl_certificate_key ${PROXY_SSL_KEY_PATH};
+  ssl_certificate ${NGINX_SSL_CERT_PATH};
+  ssl_certificate_key ${NGINX_SSL_KEY_PATH};
 
   #charset koi8-r;
 
