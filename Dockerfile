@@ -12,13 +12,14 @@ RUN yum -y install epel-release \
 
 # Prepare Nginx proxy configuration.
 RUN mkdir -p ${DOL_TMPL_DIR}
-COPY config/nginx.conf /etc/nginx/nginx.conf
-COPY config/nginx.vh.proxy.conf.in config/nginx.vh.proxy-http.conf.in config/nginx.vh.proxy-https.conf.in ${DOL_TMPL_DIR}/
+COPY config/nginx.conf.in config/nginx.vh.proxy.conf.in config/nginx.vh.proxy-http.conf.in config/nginx.vh.proxy-https.conf.in ${DOL_TMPL_DIR}/
 
 # Relax permissions for nginx directories
 RUN for dir in /etc/nginx/conf.d /etc/nginx/certs /var/lib/nginx /var/run /var/log/nginx ; do \
     mkdir -p ${dir} && chmod -cR g+rwx ${dir} && chgrp -cR root ${dir} ; \
-    done
+    done \
+    && chmod -cR g+rwx /etc/nginx/nginx.conf \
+    && chgrp -cR root /etc/nginx/nginx.conf
 
 # Fix for logging on Docker 1.8 (See Docker issue #6880)
 RUN mkfifo -m 666 /var/log/nginx/access.log \
@@ -30,7 +31,6 @@ RUN mkfifo -m 666 /var/log/nginx/access.log \
 
 # And not the docker entrypoint script.
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod a+x /entrypoint.sh
 
 EXPOSE 8080 8443
 
