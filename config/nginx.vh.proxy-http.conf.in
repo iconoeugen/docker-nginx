@@ -1,6 +1,8 @@
 server {
   listen       8080;
 
+  client_max_body_size ${NGINX_CLIENT_MAX_BODY_SIZE};
+
   #charset koi8-r;
 
   #error_page  404              /404.html;

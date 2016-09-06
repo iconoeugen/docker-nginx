@@ -5,6 +5,10 @@ set -o errexit
 : ${DEBUG:=0}
 [[ ${DEBUG} -eq 1 ]] && set -x
 
+# Nginx core configuration
+: ${NGINX_WORKER_PROCESSES:=1}
+: ${NGINX_WORKER_CONNECTIONS:=512}
+
 # Nginx server configuration
 : ${NGINX_SEND_TIMEOUT:=60s}
 : ${NGINX_SENDFILE:=off}
@@ -17,6 +21,7 @@ set -o errexit
 : ${NGINX_LARGE_CLIENT_HEADER_BUFFERS_SIZE:=8k}
 : ${NGINX_CLIENT_BODY_TIMEOUT:=8s}
 : ${NGINX_CLIENT_BODY_BUFFER_SIZE:=1k}
+: ${NGINX_CLIENT_MAX_BODY_SIZE:=1M}
 
 # Enable HTTP proxy server
 : ${NGINX_HTTP_ENABLED:=1}
@@ -66,8 +71,12 @@ function substenv {
   done
 }
 
+# Generate core config for nginx server
+echo "Configure Nginx core server."
+substenv ${DOL_TMPL_DIR}/nginx.conf.in /etc/nginx/nginx.conf
+
 # Generate proxy config for nginx server
-echo "Configure Nginx server."
+echo "Configure Nginx proxy server."
 substenv ${DOL_TMPL_DIR}/nginx.vh.proxy.conf.in /etc/nginx/conf.d/proxy.conf
 
 # Configure HTTP server

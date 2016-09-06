@@ -82,6 +82,11 @@ docker-compose rm
 The name of the host and port environment variable are dependent on the provided *SERVICE_NAME* value; i.e. if *SERVICE_NAME=TEST* then the hostname environment variable has to be named *TEST_SERVICE_HOST*.
 The service name is uppercased and *-* is replaced with *_* when generating the environment variable name.
 
+### Nginx core configuration
+
+- **NGINX_WORKER_PROCESSES**: Defines the number of worker processes. (Defaults: **1**)
+- **NGINX_WORKER_CONNECTIONS**: Sets the maximum number of simultaneous connections that can be opened by a worker process. (Defaults: **512**)
+
 ### Nginx server configuration
 
 - **NGINX_SEND_TIMEOUT**: Sets a timeout for transmitting a response to the client. (Defaults: **60s**)

@@ -15,6 +15,8 @@ server {
   ssl_certificate ${NGINX_SSL_CERT_PATH};
   ssl_certificate_key ${NGINX_SSL_KEY_PATH};
 
+  client_max_body_size ${NGINX_CLIENT_MAX_BODY_SIZE};
+
   #charset koi8-r;
 
   #error_page  404              /404.html;
