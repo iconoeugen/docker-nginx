@@ -65,10 +65,12 @@ echo "Proxy service URL: ${SERVICE_PROTO}://${SERVICE_ADDR}"
 function substenv {
   local in_file="$1"
   local out_file="$2"
-  cp "${in_file}" "${out_file}"
+  local temp_file=$(mktemp -t substenv.XXXX)
+  cat "${in_file}" > ${temp_file}
   compgen -v | while read var ; do
-    sed -i "s/\${$var}/$(echo ${!var} | sed -e 's/\\/\\\\/g' -e 's/\//\\\//g' -e 's/&/\\\&/g')/g" "${out_file}"
+    sed -i "s/\${$var}/$(echo ${!var} | sed -e 's/\\/\\\\/g' -e 's/\//\\\//g' -e 's/&/\\\&/g')/g" "${temp_file}"
   done
+  cat "${temp_file}" > "${out_file}" && rm -f "${temp_file}"
 }
 
 # Generate core config for nginx server

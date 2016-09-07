@@ -18,7 +18,7 @@ COPY config/nginx.conf.in config/nginx.vh.proxy.conf.in config/nginx.vh.proxy-ht
 RUN for dir in /etc/nginx/conf.d /etc/nginx/certs /var/lib/nginx /var/run /var/log/nginx ; do \
     mkdir -p ${dir} && chmod -cR g+rwx ${dir} && chgrp -cR root ${dir} ; \
     done \
-    && chmod -cR g+rwx /etc/nginx/nginx.conf \
+    && chmod -cR g+rw /etc/nginx/nginx.conf \
     && chgrp -cR root /etc/nginx/nginx.conf
 
 # Fix for logging on Docker 1.8 (See Docker issue #6880)
