@@ -11,7 +11,7 @@ RUN yum -y install epel-release \
     && yum clean all
 
 # Relax permissions for nginx directories
-RUN for dir in /etc/nginx/conf.d /etc/nginx/certs /var/lib/nginx /var/run /var/log/nginx ; do \
+RUN for dir in /etc/nginx/conf.d /etc/nginx/default.d /etc/nginx/certs /var/lib/nginx /var/run /var/log/nginx ; do \
     mkdir -p ${dir} && chmod -cR g+rwx ${dir} && chgrp -cR root ${dir} ; \
     done \
     && chmod -cR g+rw /etc/nginx/nginx.conf \
