@@ -14,6 +14,7 @@ nginx:
     - SERVICE_PROTO=https
     - NGINX_HTTP_ENABLED=1
     - NGINX_HTTPS_ENABLED=1
+    - NGINX_STATUS_ENABLED=1
     - TEST_SERVICE_HOST=www.readthedocs.com
     - TEST_SERVICE_PORT=443
     - DEBUG=1

@@ -28,34 +28,6 @@ server {
     root   /usr/share/nginx/html;
   }
 
-  location / {
-    proxy_pass ${SERVICE_PROTO}://the-service;
-
-    # HTTP 1.1 support
-    proxy_http_version 1.1;
-
-    add_header Access-Control-Allow-Origin *;
-    add_header Access-Control-Allow-Credentials true;
-    proxy_buffering off;
-    proxy_set_header Host $http_host;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection $connection_upgrade;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
-    proxy_set_header X-Forwarded-Proto https;
-    proxy_set_header X-Forwarded-Ssl on;
-
-    if ($request_method = OPTIONS ) {
-      add_header Access-Control-Allow-Origin "*";
-      add_header Access-Control-Allow-Methods "GET,POST,OPTIONS,PUT,DELETE,PATCH";
-      add_header Access-Control-Allow-Headers 'Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since';
-      add_header Access-Control-Allow-Credentials "true";
-      add_header 'Access-Control-Max-Age' 1728000;
-      add_header Content-Length 0;
-      add_header Content-Type text/plain;
-      add_header Cache-Control 'max-age=0';
-      return 204;
-    }
-  }
+  # Load configuration files for the default server block.
+  include /etc/nginx/default.d/*.conf;
 }
