@@ -33,6 +33,12 @@ set -o errexit
 : ${NGINX_SSL_KEY_PATH:=/etc/nginx/certs/cert.key}
 : ${NGINX_SSL_CERT_PATH:=/etc/nginx/certs/cert.pem}
 
+# Enable Status page
+: ${NGINX_STATUS_ENABLED:=0}
+: ${NGINX_STATUS_LOCATION:=/nginx_status}
+: ${NGINX_STATUS_ALLOW:=127.0.0.1}
+: ${NGINX_STATUS_DENY:=all}
+
 # Service name is mandatory
 : ${SERVICE_NAME:?Not defined}
 SERVICE_NAME=${SERVICE_NAME^^}
@@ -56,8 +62,8 @@ SERVICE_ADDR="${SERVICE_HOST}${SERVICE_PORT:+:${SERVICE_PORT}}"
 echo "Proxy service URL: ${SERVICE_PROTO}://${SERVICE_ADDR}"
 
 [[ ${NGINX_HTTP_ENABLED} -ne 1 && ${NGINX_HTTPS_ENABLED} -ne 1 ]] \
-    && >&2 echo "At least one of 'NGINX_HTTP_ENABLED' or 'NGINX_HTTPS_ENABLED' must be '1'!" \
-    && exit 1
+  && >&2 echo "At least one of 'NGINX_HTTP_ENABLED' or 'NGINX_HTTPS_ENABLED' must be '1'!" \
+  && exit 1
 
 # Replace all set environment variables from in the current shell session.
 # The environment variables present in the file but are unset will remain untouched.
@@ -81,32 +87,39 @@ substenv ${DOL_TMPL_DIR}/nginx.conf.in /etc/nginx/nginx.conf
 echo "Configure Nginx proxy server."
 substenv ${DOL_TMPL_DIR}/nginx.vh.proxy.conf.in /etc/nginx/conf.d/proxy.conf
 
+# Configure default server block locations
+echo "Configure Nginx proxy pass."
+substenv ${DOL_TMPL_DIR}/nginx.location.root.conf.in /etc/nginx/default.d/root.conf
+
+if [[ ${NGINX_STATUS_ENABLED} -eq 1 ]] ; then
+  echo "Enable Nginx Status page."
+  substenv ${DOL_TMPL_DIR}/nginx.location.status.conf.in /etc/nginx/default.d/status.conf
+fi
+
 # Configure HTTP server
 if [[ ${NGINX_HTTP_ENABLED} -eq 1 ]] ; then
-    echo "Enable Nginx HTTP proxy server."
-    substenv ${DOL_TMPL_DIR}/nginx.vh.proxy-http.conf.in /etc/nginx/conf.d/proxy-http.conf
+  echo "Enable Nginx HTTP proxy server."
+  substenv ${DOL_TMPL_DIR}/nginx.vh.proxy-http.conf.in /etc/nginx/conf.d/proxy-http.conf
 fi
 
 # Configure HTTPS server
 if [[ ${NGINX_HTTPS_ENABLED} -eq 1 ]] ; then
-    echo "Enable Nginx HTTPS proxy server."
-    substenv ${DOL_TMPL_DIR}/nginx.vh.proxy-https.conf.in /etc/nginx/conf.d/proxy-https.conf
+  echo "Enable Nginx HTTPS proxy server."
+  substenv ${DOL_TMPL_DIR}/nginx.vh.proxy-https.conf.in /etc/nginx/conf.d/proxy-https.conf
 
-    if [ ! -e "${NGINX_SSL_DH_PATH}" ]
-    then
-        echo "Generating DH(${NGINX_SSL_DH_SIZE}): ${NGINX_SSL_DH_PATH}."
-        openssl dhparam -out "${NGINX_SSL_DH_PATH}" "${NGINX_SSL_DH_SIZE}"
-    fi
+  if [ ! -e "${NGINX_SSL_DH_PATH}" ] ; then
+    echo "Generating DH(${NGINX_SSL_DH_SIZE}): ${NGINX_SSL_DH_PATH}."
+    openssl dhparam -out "${NGINX_SSL_DH_PATH}" "${NGINX_SSL_DH_SIZE}"
+  fi
 
-    if [ ! -e "${NGINX_SSL_KEY_PATH}" ] || [ ! -e "${NGINX_SSL_CERT_PATH}" ]
-    then
-        echo "Generating self signed certificate."
-        openssl req -x509 -newkey rsa:4086 \
-            -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
-            -keyout "${NGINX_SSL_KEY_PATH}" \
-            -out "${NGINX_SSL_CERT_PATH}" \
-            -days 3650 -nodes -sha256
-    fi
+  if [ ! -e "${NGINX_SSL_KEY_PATH}" ] || [ ! -e "${NGINX_SSL_CERT_PATH}" ] ; then
+    echo "Generating self signed certificate."
+    openssl req -x509 -newkey rsa:4086 \
+      -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
+      -keyout "${NGINX_SSL_KEY_PATH}" \
+      -out "${NGINX_SSL_CERT_PATH}" \
+      -days 3650 -nodes -sha256
+  fi
 fi
 
 # Fix for logging on Docker 1.8 (See Docker issue #6880)
@@ -114,9 +127,9 @@ cat <> /var/log/nginx/access.log &
 cat <> /var/log/nginx/error.log 1>&2 &
 
 if [[ $# -ge 1 ]]; then
-    echo "$@"
-    exec $@
+  echo "$@"
+  exec $@
 else
-    echo "Starting Nginx proxy server."
-    exec nginx -g "daemon off;"
+  echo "Starting Nginx proxy server."
+  exec nginx -g "daemon off;"
 fi

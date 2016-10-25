@@ -10,10 +10,6 @@ RUN yum -y install epel-release \
     && yum -y install nginx \
     && yum clean all
 
-# Prepare Nginx proxy configuration.
-RUN mkdir -p ${DOL_TMPL_DIR}
-COPY config/nginx.conf.in config/nginx.vh.proxy.conf.in config/nginx.vh.proxy-http.conf.in config/nginx.vh.proxy-https.conf.in ${DOL_TMPL_DIR}/
-
 # Relax permissions for nginx directories
 RUN for dir in /etc/nginx/conf.d /etc/nginx/certs /var/lib/nginx /var/run /var/log/nginx ; do \
     mkdir -p ${dir} && chmod -cR g+rwx ${dir} && chgrp -cR root ${dir} ; \
@@ -28,6 +24,10 @@ RUN mkfifo -m 666 /var/log/nginx/access.log \
 # forward request and error logs to docker log collector
 #RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 #    && ln -sf /dev/stderr /var/log/nginx/error.log
+
+# Prepare Nginx proxy configuration.
+RUN mkdir -p ${DOL_TMPL_DIR}
+COPY config/nginx.*.in ${DOL_TMPL_DIR}/
 
 # And not the docker entrypoint script.
 COPY entrypoint.sh /entrypoint.sh

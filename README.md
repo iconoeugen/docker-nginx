@@ -113,6 +113,13 @@ The service name is uppercased and *-* is replaced with *_* when generating the 
 - **NGINX_SSL_CERT_PATH**: Specifies a file with the certificate in the PEM format. If certificate file is not found then a new one is generated. (Defaults: **/etc/nginx/certs/cert.pem**)
 - **NGINX_SSL_KEY_PATH**: Specifies a file with the secret key in the PEM format. If secret key file is not found then a new one is generated. (Defaults: **/etc/nginx/certs/cert.key**)
 
+### Nginx Status page
+
+- **NGINX_STATUS_ENABLED**: Enable Nginx staus page if vaalue is `1`. (Defaults: **0**)
+- **NGINX_STATUS_LOCATION**: Nginx location for status page to set the configuration depending on request URI. (Defaults: **/nginx_status**)
+- **NGINX_STATUS_ALLOW**: Allows access to status page for the specified network or address. (Defaults: **127.0.0.1**)
+- **NGINX_STATUS_DENY**: Denies access too  stau page for the specified network or address. (Defaults: **all**)
+
 ### Other configurations
 
 - **DEBUG**: Enable entrypoint debug output if value is `1`. (Defaults: **0**)

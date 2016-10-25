@@ -1,0 +1,14 @@
+location ${NGINX_STATUS_LOCATION} {
+
+  # Turn on nginx status page
+  stub_status on;
+
+  # Do not log access entries for status page
+  access_log   off;
+
+  # Only allow access from IPS
+  allow ${NGINX_STATUS_ALLOW};
+
+  # Deny the rest of the connections
+  deny ${NGINX_STATUS_DENY};
+}
