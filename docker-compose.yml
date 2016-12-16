@@ -1,20 +1,30 @@
 # The nginx container
-nginx:
-  hostname: nginx.example.test
-  build: .
-  ports:
-    - "8080:8080"
-    - "8443:8443"
-  environment:
-    - http_proxy
-    - https_proxy
-    - ftp_proxy
-    - no_proxy
-    - SERVICE_NAME=TEST
-    - SERVICE_PROTO=https
-    - NGINX_HTTP_ENABLED=1
-    - NGINX_HTTPS_ENABLED=1
-    - NGINX_STATUS_ENABLED=1
-    - TEST_SERVICE_HOST=www.readthedocs.com
-    - TEST_SERVICE_PORT=443
-    - DEBUG=1
+version: '2'
+services:
+  nginx:
+    hostname: nginx.example.test
+    image: pddevopslab/nginx-proxy
+    restart: always
+    build:
+      context: ./
+      args:
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - ftp_proxy=${ftp_proxy}
+        - no_proxy
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    environment:
+      - http_proxy
+      - https_proxy
+      - ftp_proxy
+      - no_proxy
+      - SERVICE_NAME=TEST
+      - SERVICE_PROTO=https
+      - NGINX_HTTP_ENABLED=1
+      - NGINX_HTTPS_ENABLED=1
+      - NGINX_STATUS_ENABLED=1
+      - TEST_SERVICE_HOST=www.readthedocs.com
+      - TEST_SERVICE_PORT=443
+      - DEBUG=1
