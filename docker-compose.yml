@@ -10,7 +10,8 @@ nginx:
     - https_proxy
     - ftp_proxy
     - no_proxy
-    - SERVICE_NAME=TEST
+    - SERVICE_BY_NAME=0
+    - SERVICE_NAME=test
     - SERVICE_PROTO=https
     - NGINX_HTTP_ENABLED=1
     - NGINX_HTTPS_ENABLED=1
