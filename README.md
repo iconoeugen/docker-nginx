@@ -28,7 +28,6 @@ docker run --name dockernginx_test -p 8080:8080 --detach dockernginx_nginx
 ```
 
 To Check running container access the URL: (http://localhost:8080/)
-```
 
 Stop running container:
 
