@@ -32,6 +32,7 @@ set -o errexit
 : ${NGINX_SSL_DH_PATH:=/etc/nginx/certs/dh.pem}
 : ${NGINX_SSL_KEY_PATH:=/etc/nginx/certs/cert.key}
 : ${NGINX_SSL_CERT_PATH:=/etc/nginx/certs/cert.pem}
+: ${NGINX_SSL_CERT_HOSTNAME:=localhost}
 
 # Enable Status page
 : ${NGINX_STATUS_ENABLED:=0}
@@ -120,7 +121,7 @@ if [[ ${NGINX_HTTPS_ENABLED} -eq 1 ]] ; then
   if [ ! -e "${NGINX_SSL_KEY_PATH}" ] || [ ! -e "${NGINX_SSL_CERT_PATH}" ] ; then
     echo "Generating self signed certificate."
     openssl req -x509 -newkey rsa:4086 \
-      -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
+      -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=${NGINX_SSL_CERT_HOSTNAME}" \
       -keyout "${NGINX_SSL_KEY_PATH}" \
       -out "${NGINX_SSL_CERT_PATH}" \
       -days 3650 -nodes -sha256
