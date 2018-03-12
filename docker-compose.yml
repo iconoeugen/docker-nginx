@@ -3,7 +3,6 @@ version: '2'
 services:
   nginx:
     hostname: nginx.example.test
-    image: pddevopslab/nginx-proxy
     restart: always
     build:
       context: ./
@@ -20,6 +19,7 @@ services:
       - https_proxy
       - ftp_proxy
       - no_proxy
+      - SERVICE_BY_NAME=0
       - SERVICE_NAME=TEST
       - SERVICE_PROTO=https
       - NGINX_HTTP_ENABLED=1
