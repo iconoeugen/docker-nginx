@@ -73,6 +73,7 @@ docker-compose rm
 ## Environment Variables
 
 ### Remote service
+
 - **SERVICE_BY_NAME** Configure as reverse proxy upstream the Hostname value from **SERVICE_NAME** if set to
 *1* or *true* else use the IP address value from **\<SERVICE_NAME\>\_SERVICE_HOST**. (Defaults: **1**)
 - **SERVICE_NAME**: Name of Service to be configured as reverse proxy. (*Manadatory*)
@@ -82,6 +83,10 @@ docker-compose rm
 
 The name of the host and port environment variable are dependent on the provided *SERVICE_NAME* value; i.e. if *SERVICE_NAME=test* then the service Hostname is *test* and the service IP address is lookedup in *TEST_SERVICE_HOST* environment variable while the Port number is lookedup in *TEST_SERVICE_PORT* environment variable.
 The service name is uppercased and *-* is replaced with *_* when generating the environment variable name.
+
+### Nginx setup configuration
+
+- **NGINX_SETUP_SCRIPT**: If this value points to an executable script present in the container instance then it will be executed before Nginx is started. (Defaults: *empty*)
 
 ### Nginx core configuration
 
