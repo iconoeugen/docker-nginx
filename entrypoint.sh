@@ -5,6 +5,9 @@ set -o errexit
 : ${DEBUG:=0}
 [[ ${DEBUG} -eq 1 ]] && set -x
 
+# Nginx preparation steps
+: ${NGINX_SETUP_SCRIPT:=}
+
 # Nginx core configuration
 : ${NGINX_WORKER_PROCESSES:=1}
 : ${NGINX_WORKER_CONNECTIONS:=512}
@@ -126,6 +129,12 @@ if [[ ${NGINX_HTTPS_ENABLED} -eq 1 ]] ; then
       -out "${NGINX_SSL_CERT_PATH}" \
       -days 3650 -nodes -sha256
   fi
+fi
+
+# Add an intermediary step that can execute a setup script
+if [[ -n ${NGINX_SETUP_SCRIPT} && -x ${NGINX_SETUP_SCRIPT} ]]; then
+  echo "Execute setup script: ${NGINX_SETUP_SCRIPT}"
+  ${NGINX_SETUP_SCRIPT}
 fi
 
 # Fix for logging on Docker 1.8 (See Docker issue #6880)
